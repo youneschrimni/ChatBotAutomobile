@@ -1,0 +1,22 @@
+# 👉 Node (Angular)
+angular-loterie/node_modules/
+angular-loterie/dist/
+angular-loterie/.angular/
+angular-loterie/.vscode/
+
+# 👉 Python (Flask)
+backend/venv/
+backend/__pycache__/
+backend/*.pyc
+backend/.env
+
+# 👉 Dossiers de travail
+.venv/
+.vscode/
+
+# 👉 Logs & fichiers temporaires
+*.log
+
+# 👉 Systèmes d'exploitation
+.DS_Store
+Thumbs.db

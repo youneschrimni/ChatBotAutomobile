@@ -1,0 +1,174 @@
+<div class="app-container" [ngClass]="{'sidebar-open': isSidebarOpen, 'dark-theme': isDarkTheme}">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <h2>AutoChat</h2>
+    </div>
+    
+    <div class="new-chat-btn" (click)="startNewChat()">
+      <i class="fas fa-plus"></i> Nouveau chat
+    </div>
+    
+    <div class="chat-history">
+      <h3>Historique</h3>
+      <ul>
+        <li *ngFor="let chat of chatHistory" 
+            [ngClass]="{'active': chat.session_id === currentChatId}"
+            (click)="selectChat(chat.session_id)">
+          <i class="fas fa-comments"></i>
+          <span>{{ chat.label }}</span>
+        </li>
+      </ul>
+    </div>
+    
+    <div class="sidebar-footer">
+      <button *ngIf="isLoggedIn" class="logout-btn" (click)="logout()">
+        <i class="fas fa-sign-out-alt"></i> Déconnexion
+      </button>
+      <button *ngIf="!isLoggedIn" class="login-btn" (click)="openLoginForm()">
+        <i class="fas fa-sign-in-alt"></i> Connexion
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Header -->
+    <header class="main-header">
+      <div class="header-left">
+        <button class="toggle-sidebar" (click)="toggleSidebar()">
+          <i class="fas fa-bars"></i>
+        </button>
+        <h1>Chatbot Automobile</h1>
+      </div>
+      
+      <div class="header-right">
+        <button class="theme-toggle" (click)="toggleTheme()">
+          <i [ngClass]="isDarkTheme ? 'fas fa-sun' : 'fas fa-moon'"></i>
+        </button>
+        
+        <div *ngIf="isLoggedIn" class="user-info">
+          <span>{{ userName }}</span>
+        </div>
+        
+        <button *ngIf="!isLoggedIn" class="login-btn" (click)="openLoginForm()">
+          Connexion
+        </button>
+      </div>
+    </header>
+
+    <!-- Chat Content -->
+    <main class="chat-content">
+      <div class="welcome-message" *ngIf="chatMessages.length === 0">
+        <h2>Bienvenue sur AutoChat</h2>
+        <p>Posez vos questions sur l'automobile, l'entretien, les pannes, ou tout autre sujet lié aux véhicules.</p>
+        
+        <div *ngIf="!isLoggedIn" class="login-prompt">
+          <p>Connectez-vous pour sauvegarder vos conversations</p>
+          <button class="primary-btn" (click)="openLoginForm()">Connexion / Inscription</button>
+        </div>
+        
+        <div class="quick-suggestions">
+          <h3>Questions fréquentes</h3>
+          <div class="suggestion-chips">
+            <div class="suggestion-chip" (click)="setQuestion('Quels sont les entretiens essentiels pour ma voiture ?')">
+              Entretiens essentiels
+            </div>
+            <div class="suggestion-chip" (click)="setQuestion('Comment choisir les bons pneus ?')">
+              Choix de pneus
+            </div>
+            <div class="suggestion-chip" (click)="setQuestion('Que faire si mon voyant moteur s\'allume ?')">
+              Voyant moteur
+            </div>
+            <div class="suggestion-chip" (click)="setQuestion('Quelle est la différence entre hybride et électrique ?')">
+              Hybride vs électrique
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="messages-container" *ngIf="chatMessages.length > 0">
+        <div *ngFor="let message of chatMessages" 
+             class="chat-message" 
+             [ngClass]="{'user': message.sender === 'user', 'bot': message.sender === 'bot'}">
+                         
+          <div class="message-bubble">
+            <p [innerHTML]="message.text"></p>
+            <span class="timestamp">{{ message.timestamp | date:'shortTime' }}</span>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Input Area -->
+    <footer class="chat-input">
+      <button class="voice-input" title="Reconnaissance vocale">
+        <i class="fas fa-microphone"></i>
+      </button>
+      
+      <input type="text" 
+             placeholder="Posez votre question sur l'automobile..." 
+             [(ngModel)]="userMessage" 
+             (keyup.enter)="sendMessage()">
+             
+      <button (click)="sendMessage()" [disabled]="!userMessage.trim()">
+        <i class="fas fa-paper-plane"></i>
+      </button>
+    </footer>
+  </div>
+  
+  <!-- Modal de connexion/inscription -->
+  <div class="auth-modal" *ngIf="showLoginForm">
+    <div class="auth-modal-content">
+      <button class="close-btn" (click)="closeLoginForm()">
+        <i class="fas fa-times"></i>
+      </button>
+      
+      <h2>{{ isRegistering ? 'Inscription' : 'Connexion' }}</h2>
+      
+      <div class="auth-error" *ngIf="authError">{{ authError }}</div>
+      
+      <!-- Formulaire de connexion -->
+      <form *ngIf="!isRegistering" (submit)="login()">
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" [(ngModel)]="loginEmail" name="email" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="password">Mot de passe</label>
+          <input type="password" id="password" [(ngModel)]="loginPassword" name="password" required>
+        </div>
+        
+        <button type="submit" class="primary-btn">Se connecter</button>
+      </form>
+      
+      <!-- Formulaire d'inscription -->
+      <form *ngIf="isRegistering" (submit)="register()">
+        <div class="form-group">
+          <label for="username">Nom d'utilisateur</label>
+          <input type="text" id="username" [(ngModel)]="registerUsername" name="username" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="registerEmail">Email</label>
+          <input type="email" id="registerEmail" [(ngModel)]="registerEmail" name="email" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="registerPassword">Mot de passe</label>
+          <input type="password" id="registerPassword" [(ngModel)]="registerPassword" name="password" required>
+        </div>
+        
+        <button type="submit" class="primary-btn">S'inscrire</button>
+      </form>
+      
+      <div class="auth-toggle">
+        {{ isRegistering ? 'Déjà un compte ?' : 'Pas encore de compte ?' }}
+        <button type="button" class="link-btn" (click)="toggleRegister()">
+          {{ isRegistering ? 'Se connecter' : 'S\'inscrire' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
