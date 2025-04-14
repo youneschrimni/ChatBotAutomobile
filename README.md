@@ -1,7 +1,7 @@
 Frontend: 
 
 La première fois que vous cloner l'appli, il faut installer node_modules.
-Allez dans le dossier frontend et faite la commande: npm install.\n
+Allez dans le dossier frontend et faite la commande: npm install.            
 Après pour lancer le front il suffit juste de faire npm start dans frontend.
 
 
