@@ -143,6 +143,33 @@ def get_sessions():
     ]
     return jsonify({"sessions": data}), 200
 
+@app.route("/session/<session_id>", methods=["DELETE"])
+def delete_session(session_id):
+    try:
+        auth_header = request.headers.get("Authorization")
+        if not auth_header or not auth_header.startswith("Bearer "):
+            return jsonify({"msg": "Token manquant"}), 401
+
+        token = auth_header.split(" ")[1]
+        user_id = decode_token(token)["user_id"]
+        
+        # Vérifier que la session appartient à l'utilisateur
+        session = sessions_col.find_one({"_id": session_id})
+        if not session:
+            return jsonify({"msg": "Session inconnue"}), 404
+        
+        if session["user_id"] != user_id:
+            return jsonify({"msg": "Non autorisé"}), 403
+        
+        # Supprimer la session et tous les messages associés
+        sessions_col.delete_one({"_id": session_id})
+        messages_col.delete_many({"session_id": session_id})
+        
+        return jsonify({"msg": "Session supprimée avec succès"}), 200
+    except Exception as e:
+        print("Erreur lors de la suppression de la session:", e)
+        return jsonify({"msg": "Erreur lors de la suppression", "error": str(e)}), 500
+
 # ========== RAG - Pose de question avec mémoire ==========
 @app.route("/ask", methods=["POST"])
 def ask():

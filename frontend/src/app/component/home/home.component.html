@@ -1,5 +1,5 @@
 <div class="app-container" [ngClass]="{'sidebar-open': isSidebarOpen, 'dark-theme': isDarkTheme}">
-  <!-- Sidebar -->
+
   <div class="sidebar">
     <div class="sidebar-header">
       <h2>AutoChat</h2>
@@ -17,10 +17,13 @@
             (click)="selectChat(chat.session_id)">
           <i class="fas fa-comments"></i>
           <span>{{ chat.label }}</span>
+          <button class="delete-chat-btn" (click)="deleteChat(chat.session_id, $event)">
+            <mat-icon>delete</mat-icon>
+          </button>
         </li>
       </ul>
     </div>
-    
+
     <div class="sidebar-footer">
       <button *ngIf="isLoggedIn" class="logout-btn" (click)="logout()">
         <i class="fas fa-sign-out-alt"></i> Déconnexion
@@ -31,9 +34,9 @@
     </div>
   </div>
 
-  <!-- Main Content -->
+
   <div class="main-content">
-    <!-- Header -->
+
     <header class="main-header">
       <div class="header-left">
         <button class="toggle-sidebar" (click)="toggleSidebar()">
@@ -46,9 +49,10 @@
         <button class="theme-toggle" (click)="toggleTheme()">
           <i [ngClass]="isDarkTheme ? 'fas fa-sun' : 'fas fa-moon'"></i>
         </button>
-        
+
         <div *ngIf="isLoggedIn" class="user-info">
-          <span>{{ userName }}</span>
+          <div class="online"></div>
+          <h4 class="pseudo">{{ userName | uppercase }}</h4>
         </div>
         
         <button *ngIf="!isLoggedIn" class="login-btn" (click)="openLoginForm()">
@@ -57,7 +61,7 @@
       </div>
     </header>
 
-    <!-- Chat Content -->
+
     <main class="chat-content">
       <div class="welcome-message" *ngIf="chatMessages.length === 0">
         <h2>Bienvenue sur AutoChat</h2>
@@ -100,11 +104,8 @@
       </div>
     </main>
 
-    <!-- Input Area -->
+
     <footer class="chat-input">
-      <button class="voice-input" title="Reconnaissance vocale">
-        <i class="fas fa-microphone"></i>
-      </button>
       
       <input type="text" 
              placeholder="Posez votre question sur l'automobile..." 
@@ -113,11 +114,12 @@
              
       <button (click)="sendMessage()" [disabled]="!userMessage.trim()">
         <i class="fas fa-paper-plane"></i>
+        <mat-icon>arrow_upward</mat-icon>
       </button>
     </footer>
   </div>
   
-  <!-- Modal de connexion/inscription -->
+
   <div class="auth-modal" *ngIf="showLoginForm">
     <div class="auth-modal-content">
       <button class="close-btn" (click)="closeLoginForm()">
@@ -128,7 +130,7 @@
       
       <div class="auth-error" *ngIf="authError">{{ authError }}</div>
       
-      <!-- Formulaire de connexion -->
+
       <form *ngIf="!isRegistering" (submit)="login()">
         <div class="form-group">
           <label for="email">Email</label>
@@ -143,7 +145,7 @@
         <button type="submit" class="primary-btn">Se connecter</button>
       </form>
       
-      <!-- Formulaire d'inscription -->
+
       <form *ngIf="isRegistering" (submit)="register()">
         <div class="form-group">
           <label for="username">Nom d'utilisateur</label>
