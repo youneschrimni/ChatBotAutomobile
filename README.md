@@ -1,12 +1,47 @@
-Frontend: 
+# 🧠 AutoChat – Chatbot Automobile & Mécanique
 
-La première fois que vous cloner l'appli, il faut installer node_modules.
-Allez dans le dossier frontend et faite la commande: npm install.            
-Après pour lancer le front il suffit juste de faire npm start dans frontend.
+**AutoChat** est une application web intelligente qui répond aux questions sur l’automobile et la mécanique. Grâce à un système de génération assistée par l’intelligence artificielle, elle fournit des réponses précises, documentées et personnalisées.
 
+---
 
-Backend:
+## 🚗 Fonctionnalités
 
-La première fois allez dans le dossier backend et crée un venv.
-Ensuite pour installer les libraires vous faites un: pip install -r requirements.txt.
-Et arès pour lancer le back vous activer le venv, ensuite vous lancer le app.py.
+- ✅ Chat en langage naturel avec un assistant spécialisé automobile
+- 🔐 Authentification JWT sécurisée avec mot de passe hashé (bcrypt)
+- 💬 Sessions de discussion avec historique complet
+- 📄 RAG (Recherche Augmentée) sur des documents PDF techniques
+- 🧠 Génération de réponses via LLM (Mistral)
+- 🌙 Interface responsive avec thème clair/sombre
+
+---
+
+## 🧠 Technologies IA utilisées
+
+Le backend utilise plusieurs outils d'intelligence artificielle :
+
+| Composant                  | Description                                                                 |
+|---------------------------|-----------------------------------------------------------------------------|
+| `Mistral-7B-Instruct`     | Modèle de génération de texte, via Hugging Face Inference API               |
+| `all-MiniLM-L6-v2`        | Modèle d'embedding pour vectorisation des questions et documents            |
+| RAG (Retrieval-Augmented) | Recherche des passages pertinents dans des documents pour enrichir les réponses |
+| Mémoire de session        | Prise en compte de l’historique de la conversation                         |
+
+---
+
+## 🧰 Stack technique
+
+- **Frontend** : Angular
+- **Backend** : Flask
+- **Base de données** : MongoDB
+- **Authentification** : JWT + bcrypt
+- **Hébergement** : Compatible VPS (Gunicorn + Nginx)
+
+---
+
+## ⚙️ Démarrage de l’application
+
+### 📦 1. Cloner le projet
+
+```bash
+git clone https://github.com/ton-repo/autochat.git
+cd autochat
