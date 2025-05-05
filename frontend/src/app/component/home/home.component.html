@@ -1,5 +1,6 @@
 <div class="app-container" [ngClass]="{'sidebar-open': isSidebarOpen, 'dark-theme': isDarkTheme}">
 
+  <!-- Sidebar -->
   <div class="sidebar">
     <div class="sidebar-header">
       <h2>AutoChat</h2>
@@ -34,9 +35,9 @@
     </div>
   </div>
 
-
+  <!-- Main Content -->
   <div class="main-content">
-
+    <!-- Header -->
     <header class="main-header">
       <div class="header-left">
         <button class="toggle-sidebar" (click)="toggleSidebar()">
@@ -46,7 +47,12 @@
       </div>
       
       <div class="header-right">
-        <button class="theme-toggle" (click)="toggleTheme()">
+        <input type="file" #fileInput hidden (change)="onFileSelected($event)" />
+
+        <button class="upload-btn-header" *ngIf="isLoggedIn" (click)="fileInput.click()">
+          <i class="fas fa-file-upload"></i>
+        </button>
+                <button class="theme-toggle" (click)="toggleTheme()">
           <i [ngClass]="isDarkTheme ? 'fas fa-sun' : 'fas fa-moon'"></i>
         </button>
 
@@ -61,11 +67,12 @@
       </div>
     </header>
 
-
+    <!-- Chat Area -->
     <main class="chat-content">
+      <!-- Welcome Screen -->
       <div class="welcome-message" *ngIf="chatMessages.length === 0">
         <h2>Bienvenue sur AutoChat</h2>
-        <p>Posez vos questions sur l'automobile, l'entretien, les pannes, ou tout autre sujet lié aux véhicules.</p>
+        <p>Votre assistant expert en automobile pour répondre à toutes vos questions sur les véhicules, l'entretien et les pannes.</p>
         
         <div *ngIf="!isLoggedIn" class="login-prompt">
           <p>Connectez-vous pour sauvegarder vos conversations</p>
@@ -73,7 +80,7 @@
         </div>
         
         <div class="quick-suggestions">
-          <h3>Questions fréquentes</h3>
+          <h3>Questions populaires</h3>
           <div class="suggestion-chips">
             <div class="suggestion-chip" (click)="setQuestion('Quels sont les entretiens essentiels pour ma voiture ?')">
               Entretiens essentiels
@@ -87,15 +94,43 @@
             <div class="suggestion-chip" (click)="setQuestion('Quelle est la différence entre hybride et électrique ?')">
               Hybride vs électrique
             </div>
+            <div class="suggestion-chip" (click)="setQuestion('Comment puis-je analyser mon PDF ?')">
+              Analyser mon PDF
+            </div>
+            
           </div>
         </div>
       </div>
+      <div class="file-upload-section" *ngIf="isLoggedIn">
+        <h3>Importer des documents</h3>
+        <p>Vous pouvez importer des fichiers PDF pour poser des questions sur leur contenu.</p>
+        
+        <div class="file-upload-area">
+          <label for="file-upload" class="file-upload-label">
+            <i class="fas fa-file-pdf"></i>
+            <span>Sélectionner un fichier PDF</span>
+            <input type="file" id="file-upload" accept=".pdf" (change)="onFileSelected($event)">
+          </label>
+          
+          <div class="selected-file" *ngIf="selectedFile">
+            Fichier sélectionné: <strong>{{ selectedFile.name }}</strong>
+          </div>
+          
+          <button class="upload-btn" [disabled]="!selectedFile || isUploading" (click)="uploadFile()">
+            <i class="fas fa-upload"></i>
+            <span *ngIf="!isUploading">Télécharger le PDF</span>
+            <span *ngIf="isUploading">Téléchargement...</span>
+          </button>
+          
+          <div class="upload-message" *ngIf="uploadMessage">{{ uploadMessage }}</div>
+        </div>
+      </div>
       
+      <!-- Chat Messages -->
       <div class="messages-container" *ngIf="chatMessages.length > 0">
         <div *ngFor="let message of chatMessages" 
              class="chat-message" 
              [ngClass]="{'user': message.sender === 'user', 'bot': message.sender === 'bot'}">
-                         
           <div class="message-bubble">
             <p [innerHTML]="message.text"></p>
             <span class="timestamp">{{ message.timestamp | date:'shortTime' }}</span>
@@ -104,22 +139,20 @@
       </div>
     </main>
 
-
+    <!-- Input Area -->
     <footer class="chat-input">
-      
       <input type="text" 
              placeholder="Posez votre question sur l'automobile..." 
              [(ngModel)]="userMessage" 
              (keyup.enter)="sendMessage()">
              
       <button (click)="sendMessage()" [disabled]="!userMessage.trim()">
-        <i class="fas fa-paper-plane"></i>
-        <mat-icon>arrow_upward</mat-icon>
+        <mat-icon>send</mat-icon>
       </button>
     </footer>
   </div>
   
-
+  <!-- Auth Modal -->
   <div class="auth-modal" *ngIf="showLoginForm">
     <div class="auth-modal-content">
       <button class="close-btn" (click)="closeLoginForm()">
@@ -130,7 +163,7 @@
       
       <div class="auth-error" *ngIf="authError">{{ authError }}</div>
       
-
+      <!-- Login Form -->
       <form *ngIf="!isRegistering" (submit)="login()">
         <div class="form-group">
           <label for="email">Email</label>
@@ -145,7 +178,7 @@
         <button type="submit" class="primary-btn">Se connecter</button>
       </form>
       
-
+      <!-- Register Form -->
       <form *ngIf="isRegistering" (submit)="register()">
         <div class="form-group">
           <label for="username">Nom d'utilisateur</label>
