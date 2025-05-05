@@ -1,7 +1,3 @@
-# =========================
-# BACKEND - app.py (avec RAG + mémoire de session + log des sources)
-# =========================
-
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from pymongo import MongoClient
@@ -14,10 +10,10 @@ import numpy as np
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 from sentence_transformers import SentenceTransformer
+import traceback
 
 # ========== Initialisation ==========
 load_dotenv()
-
 app = Flask(__name__)
 CORS(app)
 
@@ -70,8 +66,8 @@ def find_top_chunks(question, top_k=3):
     scored.sort(reverse=True)
     return scored[:top_k]
 
-import traceback
 
+# ========== Gestion des erreurs ==========
 @app.errorhandler(Exception)
 def handle_exception(e):
     print("\n====== ERREUR GLOBALE ======")
@@ -80,9 +76,8 @@ def handle_exception(e):
     print("====== FIN ERREUR ======\n")
     return jsonify({"msg": "Erreur serveur", "error": str(e)}), 500
 
-
 # ========== Authentification ==========
-@app.route("/register", methods=["POST"])
+@app.route("/api/register", methods=["POST"])
 def register():
     data = request.json
     if users_col.find_one({"email": data["email"]}):
@@ -97,8 +92,13 @@ def register():
     users_col.insert_one(user)
     return jsonify({"msg": "Utilisateur créé"}), 201
 
-@app.route("/login", methods=["POST"])
+@app.route("/api/login", methods=["POST"])
 def login():
+    data = request.json
+    print(">>> Données reçues :", data)
+    print(">>> /api/login appelée")
+    print("Contenu reçu :", request.json)
+
     data = request.json
     user = users_col.find_one({"email": data["email"]})
     if not user or not check_password(data["password"], user["password"]):
@@ -106,7 +106,7 @@ def login():
     return jsonify({"token": create_token(user["_id"])}), 200
 
 # ========== Sessions ==========
-@app.route("/session", methods=["POST"])
+@app.route("/api/session", methods=["POST"])
 def create_session():
     data = request.json
     try:
@@ -124,7 +124,7 @@ def create_session():
     sessions_col.insert_one(session)
     return jsonify({"session_id": session["_id"]}), 201
 
-@app.route("/sessions", methods=["GET"])
+@app.route("/api/sessions", methods=["GET"])
 def get_sessions():
     auth_header = request.headers.get("Authorization")
     if not auth_header or not auth_header.startswith("Bearer "):
@@ -143,7 +143,7 @@ def get_sessions():
     ]
     return jsonify({"sessions": data}), 200
 
-@app.route("/session/<session_id>", methods=["DELETE"])
+@app.route("/api/session/<session_id>", methods=["DELETE"])
 def delete_session(session_id):
     try:
         auth_header = request.headers.get("Authorization")
@@ -152,26 +152,23 @@ def delete_session(session_id):
 
         token = auth_header.split(" ")[1]
         user_id = decode_token(token)["user_id"]
-        
-        # Vérifier que la session appartient à l'utilisateur
+
         session = sessions_col.find_one({"_id": session_id})
         if not session:
             return jsonify({"msg": "Session inconnue"}), 404
-        
         if session["user_id"] != user_id:
             return jsonify({"msg": "Non autorisé"}), 403
-        
-        # Supprimer la session et tous les messages associés
+
         sessions_col.delete_one({"_id": session_id})
         messages_col.delete_many({"session_id": session_id})
-        
+
         return jsonify({"msg": "Session supprimée avec succès"}), 200
     except Exception as e:
         print("Erreur lors de la suppression de la session:", e)
         return jsonify({"msg": "Erreur lors de la suppression", "error": str(e)}), 500
 
-# ========== RAG - Pose de question avec mémoire ==========
-@app.route("/ask", methods=["POST"])
+# ========== RAG ==========
+@app.route("/api/ask", methods=["POST"])
 def ask():
     data = request.json
     session_id = data["session_id"]
@@ -221,7 +218,7 @@ Réponse :"""
     return jsonify({"answer": answer, "sources": chunks_used}), 200
 
 # ========== Historique ==========
-@app.route("/history/<session_id>", methods=["GET"])
+@app.route("/api/history/<session_id>", methods=["GET"])
 def history(session_id):
     session = sessions_col.find_one({"_id": session_id})
     if not session:
@@ -233,5 +230,6 @@ def history(session_id):
         ]
     }), 200
 
+print("🚀 Routes enregistrées :", app.url_map)
 if __name__ == "__main__":
     app.run(debug=True, use_reloader=False, port=5000)
