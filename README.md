@@ -43,5 +43,25 @@ Le backend utilise plusieurs outils d'intelligence artificielle :
 ### 📦 1. Cloner le projet
 
 ```bash
-git clone https://github.com/ton-repo/autochat.git
-cd autochat
+git clone https://github.com/youneschrimni/ChatBotAutomobile.git
+cd ChatBotAutomobile
+```
+### 🌐 2. Lancer le frontend (Angular)
+```bash
+cd frontend
+npm install
+npm start
+```
+L’application Angular sera accessible sur http://localhost:4200
+
+### 🧪 3. Lancer le backend (Flask)
+```bash
+cd backend
+python -m venv venv
+source venv/bin/activate  # Sur Windows : venv\Scripts\activate
+pip install -r requirements.txt
+python app.py
+```
+Le backend tourne sur http://localhost:5000
+
+
