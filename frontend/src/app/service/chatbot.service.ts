@@ -18,7 +18,7 @@ export interface ChatHistory {
   providedIn: 'root'
 })
 export class ChatbotService {
-  private baseUrl = 'http://localhost:5000';
+  private baseUrl = 'http://217.154.22.108:80/api';
   
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.hasToken());
   isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
